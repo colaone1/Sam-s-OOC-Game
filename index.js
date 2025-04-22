@@ -309,7 +309,7 @@ let baseValue = 5;
 let inventory = [];
 
 // Add at the top with other variables
-let previousState = null;
+let stateHistory = [];
 
 function updateRemainingPoints() {
   const totalUsed = Object.values(playerAttributes).reduce((sum, value) => sum + (value - baseValue), 0);
@@ -446,7 +446,7 @@ function displayRoomInfo(room) {
 
 // Add new function to show directions after clicking continue
 function showDirections() {
-  previousState = document.getElementById("textarea").innerHTML;
+  stateHistory.push(document.getElementById("textarea").innerHTML);
   document.getElementById("textarea").innerHTML = "<p style='text-align: center;'>1. Look around</p>";
   document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>2. Investigate the lightsource</p>";
   document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose)</p>";
@@ -464,40 +464,11 @@ function showDirections() {
 function handleCommand(event) {
   if (event.key === "Enter") {
     const command = document.getElementById("usertext").value.toLowerCase().trim();
+    const currentText = document.getElementById("textarea").innerHTML;
     
-    if (command === "look around" || command === "1" || command === "1.") {
-      previousState = document.getElementById("textarea").innerHTML;
-      document.getElementById("textarea").innerHTML = "<p>You look around the room, nothing but cold, hard stone and the barred door where the light is coming from</p>";
-      document.getElementById("textarea").innerHTML += "<p style='text-decoration: underline; text-align: center;'>Do you?</p>";
-      document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>1. Investigate the lightsource</p>";
-      document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>2. Continue looking (6+ intelligence required)</p>";
-      document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose)</p>";
-      document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'inventory' to check your items)</p>";
-      document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
-      document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
-      document.getElementById("usertext").value = "";
-    } else if (command === "investigate the lightsource" || command === "2" || command === "2.") {
-      previousState = document.getElementById("textarea").innerHTML;
-      document.getElementById("textarea").innerHTML = "<p>You walk closer to the source of the light and the barred door, a guard stands outside of it and to the right, he sees you and smirks, then says. \"Ah... Finally awake I see, was worried you were never gonna wake up.\"</p>";
-      document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
-      document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
-      document.getElementById("usertext").value = "";
-    } else if (command === "continue looking" || command === "2" || command === "2.") {
-      previousState = document.getElementById("textarea").innerHTML;
-      if (inventory.includes("lockpick")) {
-        document.getElementById("textarea").innerHTML = "<p>You've found all you can here, only a mess of straw remains that used to be a makeshift bed.</p>";
-      } else if (playerAttributes.intelligence >= 6) {
-        document.getElementById("textarea").innerHTML = "<p>You continue to look around, all you see is the torch light shimmering and your dimly lit straw bed... Wait a minute... The flickering of the torch causes something to shine underneath the straw bed. You move some straw around... A lockpick!</p>";
-        inventory.push("lockpick");
-        document.getElementById("textarea").innerHTML += "<p>Lockpick added to inventory</p>";
-      } else {
-        document.getElementById("textarea").innerHTML = "<p>You continue to look around, but your mind is too clouded to notice anything unusual. Perhaps if you were more observant...</p>";
-      }
-      document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
-      document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
-      document.getElementById("usertext").value = "";
-    } else if (command === "check inventory" || command === "inventory") {
-      previousState = document.getElementById("textarea").innerHTML;
+    // Handle inventory check first, as it should work in all states
+    if (command === "check inventory" || command === "inventory") {
+      stateHistory.push(currentText);
       if (inventory.length === 0) {
         document.getElementById("textarea").innerHTML = "<p>Your inventory is empty.</p>";
       } else {
@@ -506,8 +477,74 @@ function handleCommand(event) {
       document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
       document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
       document.getElementById("usertext").value = "";
-    } else if (command === "go back") {
-      if (previousState) {
+      return;
+    }
+    
+    // Handle first page commands
+    if (currentText.includes("1. Look around") && currentText.includes("2. Investigate the lightsource")) {
+      if (command === "1" || command === "1." || command === "look around") {
+        stateHistory.push(currentText);
+        document.getElementById("textarea").innerHTML = "<p>You look around the room, nothing but cold, hard stone and the barred door where the light is coming from</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-decoration: underline; text-align: center;'>Do you?</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>1. Investigate the lightsource</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>2. Continue looking (6+ intelligence required)</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose)</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'inventory' to check your items)</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+        document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+        document.getElementById("usertext").value = "";
+        return;
+      } else if (command === "2" || command === "2." || command === "investigate the lightsource" || command === "investigate lightsource") {
+        stateHistory.push(currentText);
+        document.getElementById("textarea").innerHTML = "<p>You walk closer to the source of the light and the barred door, a guard stands outside of it and to the right, he sees you and smirks, then says. \"Ah... Finally awake I see, was worried you were never gonna wake up.\"</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+        document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+        document.getElementById("usertext").value = "";
+        return;
+      } else if (command === "go back") {
+        alert("There's nothing back there for you.");
+        document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+        document.getElementById("usertext").value = "";
+        return;
+      }
+    }
+    
+    // Handle second page commands
+    if (currentText.includes("Do you?")) {
+      if (command === "1" || command === "1." || command === "investigate the lightsource" || command === "investigate lightsource") {
+        stateHistory.push(currentText);
+        document.getElementById("textarea").innerHTML = "<p>You walk closer to the source of the light and the barred door, a guard stands outside of it and to the right, he sees you and smirks, then says. \"Ah... Finally awake I see, was worried you were never gonna wake up.\"</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+        document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+        document.getElementById("usertext").value = "";
+        return;
+      } else if (command === "2" || command === "2." || command === "continue looking") {
+        stateHistory.push(currentText);
+        if (inventory.includes("lockpick")) {
+          document.getElementById("textarea").innerHTML = "<p>You've found all you can here, only a mess of straw remains that used to be a makeshift bed.</p>";
+        } else if (playerAttributes.intelligence >= 6) {
+          document.getElementById("textarea").innerHTML = "<p>You continue to look around, all you see is the torch light shimmering and your dimly lit straw bed... Wait a minute... The flickering of the torch causes something to shine underneath the straw bed. You move some straw around... A lockpick!</p>";
+          inventory.push("lockpick");
+          document.getElementById("textarea").innerHTML += "<p>Lockpick added to inventory</p>";
+        } else {
+          document.getElementById("textarea").innerHTML = "<p>You continue to look around, but your mind is too clouded to notice anything unusual. Perhaps if you were more observant...</p>";
+        }
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+        document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+        document.getElementById("usertext").value = "";
+        return;
+      } else if (command === "go back") {
+        alert("There's nothing back there for you.");
+        document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+        document.getElementById("usertext").value = "";
+        return;
+      }
+    }
+    
+    // Handle go back command for other states
+    if (command === "go back") {
+      if (stateHistory.length > 0) {
+        const previousState = stateHistory.pop();
         document.getElementById("textarea").innerHTML = previousState;
         // Check if we're going back to the initial state
         if (previousState.includes("You wake up in a dimly lit room")) {
@@ -515,15 +552,20 @@ function handleCommand(event) {
         } else {
           document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
           document.getElementById("usertext").value = "";
+          // Re-add the event listener after going back
+          document.removeEventListener("keydown", handleCommand);
+          document.addEventListener("keydown", handleCommand);
         }
       } else {
         alert("There's nothing to go back to!");
       }
-    } else {
-      document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
-      document.getElementById("usertext").value = "";
-      alert("that is not a valid command please try again");
+      return;
     }
+    
+    // If no valid command was found
+    document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+    document.getElementById("usertext").value = "";
+    alert("that is not a valid command please try again");
   }
 }
 
