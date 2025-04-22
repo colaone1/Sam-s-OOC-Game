@@ -258,7 +258,7 @@ class Enemy extends Character {
 
 //create the indiviual room objects and add their descriptions
 const Kitchen = new Room("kitchen");
-Kitchen.description = "You wake up in a dimly lit room, stone slabs covering the floor and grey bricks for walls, all degrading as if they've been there for a hundred years or more. The light is coming from outside the room, just past a barred door, the only way in or out of it... Is this a dungeon?";
+Kitchen.description = "You wake up in a dimly lit room, head throbbing with a painful bump on your head, stone slabs cover the floor and grey bricks for walls, all degrading as if they've been there for a hundred years or more. The light is coming from outside the room, just past a barred door, the only way in or out of it... Is this a dungeon?";
 const Lounge = new Room("lounge");
 Lounge.description = "a large room with two sofas and a large fire place";
 const GamesRoom = new Room("Games Room");
@@ -716,6 +716,44 @@ function handleWhyAmIHere() {
 function handleWhoAreYou() {
   stateHistory.push(document.getElementById("textarea").innerHTML);
   document.getElementById("textarea").innerHTML = "<p>\"Isn't it obvious?\" His smirk thinning. \"I'm your jailor, and if you misbehave, the last person you'll see!\" He says as he cackles to himself, showing off the wooden baton on his belt.</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>1. Come on then, let's find out who'll be seeing their last!</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose)</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+  document.getElementById("buttonarea").innerHTML = `
+    <div style="display: flex; gap: 20px;">
+      <div style="flex: 1;">
+        <button class="btn btn-primary" onclick="handleChallengeGuard()">1. Come on then, let's find out who'll be seeing their last!</button>
+      </div>
+      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
+    </div>
+    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
+  document.getElementById("usertext").value = "";
+}
+
+function handleChallengeGuard() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p>The guard's smirk fades as he grips his baton tightly. \"You've got spirit, I'll give you that. But you're in no condition to fight, not with that bump on your head. Maybe when you're feeling better... if you live that long.\"</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>1. Oh I see, afraid of me are you?! (6+ charisma required)</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose)</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+  document.getElementById("buttonarea").innerHTML = `
+    <div style="display: flex; gap: 20px;">
+      <div style="flex: 1;">
+        <button class="btn btn-primary" onclick="handleCharismaChallenge()">1. Oh I see, afraid of me are you?! (6+ charisma required)</button>
+      </div>
+      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
+    </div>
+    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
+  document.getElementById("usertext").value = "";
+}
+
+function handleCharismaChallenge() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  if (playerAttributes.charisma >= 6) {
+    document.getElementById("textarea").innerHTML = "<p>\"A-afraid?! I'll show you something to be afraid of!\" He bellows before drawing his wooden baton, opening the door to the prison cell. He then, with a grimace on his face raises his baton and brings it down with force.</p>";
+  } else {
+    document.getElementById("textarea").innerHTML = "<p>The guard chuckles then says \"My you're a tough one ain't ya.\"</p>";
+  }
   document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
   document.getElementById("buttonarea").innerHTML = `
     <div style="display: flex; gap: 20px;">
