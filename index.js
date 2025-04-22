@@ -769,6 +769,41 @@ function handleCharismaChallenge() {
 function handleWhoAmI() {
   stateHistory.push(document.getElementById("textarea").innerHTML);
   document.getElementById("textarea").innerHTML = "<p>The guard pauses for a brief moment, looking you in the eyes then says. \"They must've hit you on the head hard before dragging your sorry self down here... You really don't know?\"</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>1. Of course I do, it's...</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>2. I... I have no idea</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose)</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+  document.getElementById("buttonarea").innerHTML = `
+    <div style="display: flex; gap: 20px;">
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <button class="btn btn-primary" onclick="handleRememberName()">1. Of course I do, it's...</button>
+        <button class="btn btn-primary" onclick="handleNoMemory()">2. I... I have no idea</button>
+      </div>
+      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
+    </div>
+    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
+  document.getElementById("usertext").value = "";
+}
+
+function handleRememberName() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p>\"Well? What is it then?\"</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type your name using only letters, then press Enter)</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+  document.getElementById("buttonarea").innerHTML = `
+    <div style="display: flex; gap: 20px;">
+      <div style="flex: 1;">
+        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
+      </div>
+      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
+    </div>
+    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" pattern="[A-Za-z]+" title="Please enter only letters" />`;
+  document.getElementById("usertext").value = "";
+}
+
+function handleNoMemory() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p>The guard's smirk grows wider. \"Knocked the sense out of you they did... Oh well, as long as you respond to 'prisoner' we won't have any problems.\"</p>";
   document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
   document.getElementById("buttonarea").innerHTML = `
     <div style="display: flex; gap: 20px;">
