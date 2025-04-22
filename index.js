@@ -497,6 +497,12 @@ function handleCommand(event) {
       } else if (command === "2" || command === "2." || command === "investigate the lightsource" || command === "investigate lightsource") {
         stateHistory.push(currentText);
         document.getElementById("textarea").innerHTML = "<p>You walk closer to the source of the light and the barred door, a guard stands outside of it and to the right, he sees you and smirks, then says. \"Ah... Finally awake I see, was worried you were never gonna wake up.\"</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>1. Why am I here?</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>2. Who are you?</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>3. Who am I?</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>4. Let me out you bastard, I'll kill you!</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose)</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'inventory' to check your items)</p>";
         document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
         document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
         document.getElementById("usertext").value = "";
@@ -514,6 +520,12 @@ function handleCommand(event) {
       if (command === "1" || command === "1." || command === "investigate the lightsource" || command === "investigate lightsource") {
         stateHistory.push(currentText);
         document.getElementById("textarea").innerHTML = "<p>You walk closer to the source of the light and the barred door, a guard stands outside of it and to the right, he sees you and smirks, then says. \"Ah... Finally awake I see, was worried you were never gonna wake up.\"</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>1. Why am I here?</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>2. Who are you?</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>3. Who am I?</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>4. Let me out you bastard, I'll kill you!</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose)</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'inventory' to check your items)</p>";
         document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
         document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
         document.getElementById("usertext").value = "";
@@ -535,6 +547,39 @@ function handleCommand(event) {
         return;
       } else if (command === "go back") {
         alert("There's nothing back there for you.");
+        document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+        document.getElementById("usertext").value = "";
+        return;
+      }
+    }
+    
+    // Handle guard dialogue options
+    if (currentText.includes("Why am I here?") || currentText.includes("Who are you?") || currentText.includes("Who am I?") || currentText.includes("Let me out you bastard")) {
+      if (command === "1" || command === "1." || command === "why am i here") {
+        stateHistory.push(currentText);
+        document.getElementById("textarea").innerHTML = "<p>\"Bad luck I suppose!\" The guard blutters with a chuckle. \"I just get paid to stand guard, not ask questions that don't concern me.\"</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+        document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+        document.getElementById("usertext").value = "";
+        return;
+      } else if (command === "2" || command === "2." || command === "who are you") {
+        stateHistory.push(currentText);
+        document.getElementById("textarea").innerHTML = "<p>\"Isn't it obvious?\" His smirk thinning. \"I'm your jailor, and if you misbehave, the last person you'll see!\" He says as he cackles to himself, showing off the wooden baton on his belt.</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+        document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+        document.getElementById("usertext").value = "";
+        return;
+      } else if (command === "3" || command === "3." || command === "who am i") {
+        stateHistory.push(currentText);
+        document.getElementById("textarea").innerHTML = "<p>The guard pauses for a brief moment, looking you in the eyes then says. \"They must've hit you on the head hard before dragging your sorry self down here... You really don't know?\"</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+        document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+        document.getElementById("usertext").value = "";
+        return;
+      } else if (command === "4" || command === "4." || command === "let me out you bastard" || command === "let me out you bastard i'll kill you") {
+        stateHistory.push(currentText);
+        document.getElementById("textarea").innerHTML = "<p>The guard tuts. \"Now now, none of that... We don't want another bump on the head now do we?\"</p>";
+        document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
         document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
         document.getElementById("usertext").value = "";
         return;
