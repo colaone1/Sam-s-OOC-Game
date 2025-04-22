@@ -210,33 +210,47 @@ class Enemy extends Character {
   constructor(name) {
     super(name);
     this._weakness = "";
+    this._diceChallenge = false;
+    this._diceThreshold = 0;
   }
 
   set weakness(value) {
     if (value.length < 4) {
-      alert("Decription is too short.");
+      alert("Description is too short.");
       return;
     }
     this._weakness = value;
   }
 
-  /**
-   * 
-   * a method to determine the reult of fighting an enemy
-   * 
-   * @param {string} item the item used to fight the enemy 
-   * @returns {boolean} the result of the fight true = win, falese = loose
-   * @author Neil Bizzell
-   * @version 1.0
-   */
-  fight(item) {
-    if (item = this_weakness) {
-      return true;
-    } else {
-      return false;
-    }
+  set diceChallenge(value) {
+    this._diceChallenge = value;
   }
 
+  set diceThreshold(value) {
+    this._diceThreshold = value;
+  }
+
+  /**
+   * Rolls a 6-sided die
+   * @returns {number} random number between 1 and 6
+   */
+  rollDice() {
+    return Math.floor(Math.random() * 6) + 1;
+  }
+
+  /**
+   * a method to determine the result of fighting an enemy
+   * @param {string} item the item used to fight the enemy 
+   * @returns {boolean} the result of the fight true = win, false = lose
+   */
+  fight(item) {
+    if (this._diceChallenge) {
+      const roll = this.rollDice();
+      document.getElementById("textarea").innerHTML += `<br>You roll a ${roll}!`;
+      return roll >= this._diceThreshold;
+    }
+    return item === this._weakness;
+  }
 }
 
 //create the indiviual room objects and add their descriptions
@@ -266,9 +280,51 @@ Dave.description = "a smelly Zombie";
 Dave.pronoun = "he";
 Dave.weakness = "cheese";
 
+// Create enemies
+const dragon = new Enemy('dragon');
+dragon.description = "a fearsome dragon with glowing red eyes";
+dragon.conversation = "ROAR! I will eat you!";
+dragon.weakness = "sword";
+dragon.diceChallenge = true;  // This enemy requires a dice roll
+dragon.diceThreshold = 4;     // Must roll 4 or higher to win
 
 // add characters to rooms
 Kitchen.character = Dave;
+
+// Add player attributes
+let playerAttributes = {
+  intelligence: 5,
+  strength: 5,
+  agility: 5,
+  charisma: 5
+};
+
+function showCharacterCreation() {
+  document.getElementById("buttonarea").style.display = "none";
+  document.getElementById("textarea").style.display = "none";
+  document.getElementById("characterCreation").style.display = "block";
+  
+  // Add event listeners for sliders
+  document.getElementById("intelligence").addEventListener("input", function() {
+    document.getElementById("intelligenceValue").textContent = this.value;
+    playerAttributes.intelligence = parseInt(this.value);
+  });
+  
+  document.getElementById("strength").addEventListener("input", function() {
+    document.getElementById("strengthValue").textContent = this.value;
+    playerAttributes.strength = parseInt(this.value);
+  });
+  
+  document.getElementById("agility").addEventListener("input", function() {
+    document.getElementById("agilityValue").textContent = this.value;
+    playerAttributes.agility = parseInt(this.value);
+  });
+  
+  document.getElementById("charisma").addEventListener("input", function() {
+    document.getElementById("charismaValue").textContent = this.value;
+    playerAttributes.charisma = parseInt(this.value);
+  });
+}
 
 /**
  * Subroutine to display information about the current room
@@ -285,8 +341,8 @@ function displayRoomInfo(room) {
     occupantMsg = room.character.describe() + ". " + room.character.converse()
   }
 
-  textContent = "<p>" + room.describe() + "</p>" + "<p>" +
-    occupantMsg + "</p>" + "<p>" + room.getDetails() + "</p>";
+  let textContent = "<p>" + room.describe() + "</p>" + "<p>" +
+    occupantMsg + "</p>" + "<p>" + room.getDetails().join(" ") + "</p>";
 
   document.getElementById("textarea").innerHTML = textContent;
   document.getElementById("buttonarea").innerHTML = '><input type="text" id="usertext" />';
@@ -300,25 +356,34 @@ function displayRoomInfo(room) {
  * @version 1.0
  */
 function startGame() {
-  //set and display start room
-  currentRoom = Kitchen
+  // Hide character creation
+  document.getElementById("characterCreation").style.display = "none";
+  document.getElementById("textarea").style.display = "block";
+  
+  // Display initial room
+  currentRoom = Kitchen;
   displayRoomInfo(currentRoom);
+  
+  // Add character attributes to the display
+  document.getElementById("textarea").innerHTML += 
+    `<br><br>Your character attributes:<br>
+    Intelligence: ${playerAttributes.intelligence}<br>
+    Strength: ${playerAttributes.strength}<br>
+    Agility: ${playerAttributes.agility}<br>
+    Charisma: ${playerAttributes.charisma}`;
 
-  //
-
-  //handle commands
-  document.addEventListener("keydown", function (event) {
+  // Handle commands
+  document.addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
       command = document.getElementById("usertext").value;
-      const directions = ["north", "south", "east", "west"]
+      const directions = ["north", "south", "east", "west"];
       if (directions.includes(command.toLowerCase())) {
-        currentRoom = currentRoom.move(command)
+        currentRoom = currentRoom.move(command);
         displayRoomInfo(currentRoom);
       } else {
-        document.getElementById("usertext").value = ""
-        alert("that is not a valid command please try again")
+        document.getElementById("usertext").value = "";
+        alert("that is not a valid command please try again");
       }
-
     }
   });
 }

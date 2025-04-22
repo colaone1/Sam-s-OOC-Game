@@ -12,25 +12,47 @@
   <body>
     <div class="container">
       <div id="gamearea">
-        <div id="title" >
+        <div id="title">
           <div class="col">
             <h1 class="text-center">OOPs I did an Adventure</h1>
             <br />
           </div>
         </div>
         <div id="details">
-          
-            <!--intro content-->
-            <div class="justify-content-center mx-auto">
-              <p id="textarea" class="text-center">Click the button to start the adventure if you dare!</p><br /><br />
-              <div id="buttonarea">
-                <input id="startbutton" type="button" value="Start Game" class="btn btn-success text-center" onclick="startGame()"/>
-              </div>
+          <!--intro content-->
+          <div class="justify-content-center mx-auto">
+            <p id="textarea" class="text-center">Click the button to start the adventure if you dare!</p><br /><br />
+            <div id="buttonarea">
+              <input id="startbutton" type="button" value="Start Game" class="btn btn-success text-center" onclick="showCharacterCreation()"/>
             </div>
-            <form id="gameform">
-              <div id="userentry">
-              </div>
-            </form>
+          </div>
+          <!-- Character Creation Section -->
+          <div id="characterCreation" style="display: none;">
+            <h3 class="text-center">Create Your Character</h3>
+            <div class="attribute-slider">
+              <label for="intelligence">Intelligence: <span id="intelligenceValue">5</span></label>
+              <input type="range" min="1" max="10" value="5" class="slider" id="intelligence">
+            </div>
+            <div class="attribute-slider">
+              <label for="strength">Strength: <span id="strengthValue">5</span></label>
+              <input type="range" min="1" max="10" value="5" class="slider" id="strength">
+            </div>
+            <div class="attribute-slider">
+              <label for="agility">Agility: <span id="agilityValue">5</span></label>
+              <input type="range" min="1" max="10" value="5" class="slider" id="agility">
+            </div>
+            <div class="attribute-slider">
+              <label for="charisma">Charisma: <span id="charismaValue">5</span></label>
+              <input type="range" min="1" max="10" value="5" class="slider" id="charisma">
+            </div>
+            <div class="text-center mt-3">
+              <button class="btn btn-primary" onclick="startGame()">Begin Adventure</button>
+            </div>
+          </div>
+          <form id="gameform">
+            <div id="userentry">
+            </div>
+          </form>
         </div>
       </div>
     </div>
