@@ -14,21 +14,22 @@
       <div id="gamearea">
         <div id="title">
           <div class="col">
-            <h1 class="text-center">OOPs I did an Adventure</h1>
+            <h1 class="text-center">The Prisoner</h1>
             <br />
           </div>
         </div>
         <div id="details">
           <!--intro content-->
           <div class="justify-content-center mx-auto">
-            <p id="textarea" class="text-center">Click the button to start the adventure if you dare!</p><br /><br />
+            <p id="textarea" class="text-center">Click the button to start.</p><br /><br />
             <div id="buttonarea">
-              <input id="startbutton" type="button" value="Start Game" class="btn btn-success text-center" onclick="showCharacterCreation()"/>
+              <button class="btn btn-primary" onclick="showCharacterCreation()">Start Game</button>
             </div>
           </div>
-          <!-- Character Creation Section -->
+          <!-- Character Creation Section (hidden) -->
           <div id="characterCreation" style="display: none;">
             <h3 class="text-center">Create Your Character</h3>
+            <p class="text-center">You have <span id="remainingPoints">10</span> points to allocate</p>
             <div class="attribute-slider">
               <label for="intelligence">Intelligence: <span id="intelligenceValue">5</span></label>
               <input type="range" min="1" max="10" value="5" class="slider" id="intelligence">
@@ -46,7 +47,7 @@
               <input type="range" min="1" max="10" value="5" class="slider" id="charisma">
             </div>
             <div class="text-center mt-3">
-              <button class="btn btn-primary" onclick="startGame()">Begin Adventure</button>
+              <button class="btn btn-primary" onclick="startGame()" id="beginButton">Begin Adventure</button>
             </div>
           </div>
           <form id="gameform">

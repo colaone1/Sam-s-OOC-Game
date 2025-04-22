@@ -46,6 +46,9 @@ class Room {
    * @version 1.0
    */
   describe() {
+    if (this._name === "kitchen") {
+      return this._description;
+    }
     return "Looking around the " + this._name + " you can see " + this._description;
   }
 
@@ -255,7 +258,7 @@ class Enemy extends Character {
 
 //create the indiviual room objects and add their descriptions
 const Kitchen = new Room("kitchen");
-Kitchen.description = "a long narrow room with worktops on either side and a large bench in the middle";
+Kitchen.description = "You wake up in a dimly lit room, stone slabs covering the floor and grey bricks for walls, all degrading as if they've been there for a hundred years or more. The light is coming from outside the room, just past a barred door, the only way in or out of it... Is this a dungeon?";
 const Lounge = new Room("lounge");
 Lounge.description = "a large room with two sofas and a large fire place";
 const GamesRoom = new Room("Games Room");
@@ -264,8 +267,8 @@ const Hall = new Room("hall");
 Hall.description = "a grand entrance hall with large paintings around the walls";
 
 //link the rooms together
-Kitchen.linkRoom("south", Lounge);
-Kitchen.linkRoom("east", Hall);
+// Kitchen.linkRoom("south", Lounge);  // Removing this connection
+// Kitchen.linkRoom("east", Hall);     // Removing this connection
 Lounge.linkRoom("north", Kitchen);
 Lounge.linkRoom("east", GamesRoom);
 GamesRoom.linkRoom("west", Lounge);
@@ -289,7 +292,7 @@ dragon.diceChallenge = true;  // This enemy requires a dice roll
 dragon.diceThreshold = 4;     // Must roll 4 or higher to win
 
 // add characters to rooms
-Kitchen.character = Dave;
+// Kitchen.character = Dave;  // Removing this line to remove Dave from the Kitchen
 
 // Add player attributes
 let playerAttributes = {
@@ -299,31 +302,117 @@ let playerAttributes = {
   charisma: 5
 };
 
+let totalPoints = 10;
+let baseValue = 5;
+
+// Add inventory array at the top with other variables
+let inventory = [];
+
+// Add at the top with other variables
+let previousState = null;
+
+function updateRemainingPoints() {
+  const totalUsed = Object.values(playerAttributes).reduce((sum, value) => sum + (value - baseValue), 0);
+  const remaining = totalPoints - totalUsed;
+  document.getElementById("remainingPoints").textContent = remaining;
+  
+  // Remove the disabled state and title changes
+  const beginButton = document.getElementById("beginButton");
+  beginButton.disabled = false;
+  beginButton.title = "Click to begin your adventure!";
+}
+
 function showCharacterCreation() {
   document.getElementById("buttonarea").style.display = "none";
   document.getElementById("textarea").style.display = "none";
   document.getElementById("characterCreation").style.display = "block";
   
+  // Reset attributes to base value
+  playerAttributes = {
+    intelligence: baseValue,
+    strength: baseValue,
+    agility: baseValue,
+    charisma: baseValue
+  };
+  
+  // Reset sliders to base value
+  document.getElementById("intelligence").value = baseValue;
+  document.getElementById("strength").value = baseValue;
+  document.getElementById("agility").value = baseValue;
+  document.getElementById("charisma").value = baseValue;
+  
+  // Update displayed values
+  document.getElementById("intelligenceValue").textContent = baseValue;
+  document.getElementById("strengthValue").textContent = baseValue;
+  document.getElementById("agilityValue").textContent = baseValue;
+  document.getElementById("charismaValue").textContent = baseValue;
+  
   // Add event listeners for sliders
   document.getElementById("intelligence").addEventListener("input", function() {
-    document.getElementById("intelligenceValue").textContent = this.value;
-    playerAttributes.intelligence = parseInt(this.value);
+    const newValue = parseInt(this.value);
+    const oldValue = playerAttributes.intelligence;
+    const pointChange = newValue - oldValue;
+    
+    if (pointChange > 0 && (totalPoints - getTotalPointsUsed() + (oldValue - baseValue)) < pointChange) {
+      this.value = oldValue;
+      return;
+    }
+    
+    playerAttributes.intelligence = newValue;
+    document.getElementById("intelligenceValue").textContent = newValue;
+    updateRemainingPoints();
   });
   
   document.getElementById("strength").addEventListener("input", function() {
-    document.getElementById("strengthValue").textContent = this.value;
-    playerAttributes.strength = parseInt(this.value);
+    const newValue = parseInt(this.value);
+    const oldValue = playerAttributes.strength;
+    const pointChange = newValue - oldValue;
+    
+    if (pointChange > 0 && (totalPoints - getTotalPointsUsed() + (oldValue - baseValue)) < pointChange) {
+      this.value = oldValue;
+      return;
+    }
+    
+    playerAttributes.strength = newValue;
+    document.getElementById("strengthValue").textContent = newValue;
+    updateRemainingPoints();
   });
   
   document.getElementById("agility").addEventListener("input", function() {
-    document.getElementById("agilityValue").textContent = this.value;
-    playerAttributes.agility = parseInt(this.value);
+    const newValue = parseInt(this.value);
+    const oldValue = playerAttributes.agility;
+    const pointChange = newValue - oldValue;
+    
+    if (pointChange > 0 && (totalPoints - getTotalPointsUsed() + (oldValue - baseValue)) < pointChange) {
+      this.value = oldValue;
+      return;
+    }
+    
+    playerAttributes.agility = newValue;
+    document.getElementById("agilityValue").textContent = newValue;
+    updateRemainingPoints();
   });
   
   document.getElementById("charisma").addEventListener("input", function() {
-    document.getElementById("charismaValue").textContent = this.value;
-    playerAttributes.charisma = parseInt(this.value);
+    const newValue = parseInt(this.value);
+    const oldValue = playerAttributes.charisma;
+    const pointChange = newValue - oldValue;
+    
+    if (pointChange > 0 && (totalPoints - getTotalPointsUsed() + (oldValue - baseValue)) < pointChange) {
+      this.value = oldValue;
+      return;
+    }
+    
+    playerAttributes.charisma = newValue;
+    document.getElementById("charismaValue").textContent = newValue;
+    updateRemainingPoints();
   });
+  
+  updateRemainingPoints();
+}
+
+function getTotalPointsUsed() {
+  return Object.values(playerAttributes).reduce((sum, value) => sum + (value - baseValue), 0);
 }
 
 /**
@@ -342,48 +431,118 @@ function displayRoomInfo(room) {
   }
 
   let textContent = "<p>" + room.describe() + "</p>" + "<p>" +
-    occupantMsg + "</p>" + "<p>" + room.getDetails().join(" ") + "</p>";
+    occupantMsg + "</p>";
 
   document.getElementById("textarea").innerHTML = textContent;
-  document.getElementById("buttonarea").innerHTML = '><input type="text" id="usertext" />';
-  document.getElementById("usertext").focus();
+  
+  // Add continue button
+  if (room === Kitchen) {  // Only show on the starting room
+    document.getElementById("buttonarea").innerHTML = '<button class="btn btn-primary" onclick="showDirections()">Continue</button>';
+  } else {
+    document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+    document.getElementById("usertext").focus();
+  }
 }
 
-/**
- * Subroutine to complete inital game set up then handle commands from the user
- * 
- * @author Neil Bizzell
- * @version 1.0
- */
+// Add new function to show directions after clicking continue
+function showDirections() {
+  previousState = document.getElementById("textarea").innerHTML;
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center;'>1. Look around</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>2. Investigate the lightsource</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose)</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+  document.getElementById("usertext").focus();
+  
+  // Remove any existing event listeners
+  document.removeEventListener("keydown", handleCommand);
+  
+  // Add new event listener
+  document.addEventListener("keydown", handleCommand);
+}
+
+// Create a separate function to handle commands
+function handleCommand(event) {
+  if (event.key === "Enter") {
+    const command = document.getElementById("usertext").value.toLowerCase().trim();
+    
+    if (command === "look around" || command === "1" || command === "1.") {
+      previousState = document.getElementById("textarea").innerHTML;
+      document.getElementById("textarea").innerHTML = "<p>You look around the room, nothing but cold, hard stone and the barred door where the light is coming from</p>";
+      document.getElementById("textarea").innerHTML += "<p style='text-decoration: underline; text-align: center;'>Do you?</p>";
+      document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>1. Investigate the lightsource</p>";
+      document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>2. Continue looking (6+ intelligence required)</p>";
+      document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose)</p>";
+      document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'inventory' to check your items)</p>";
+      document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+      document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+      document.getElementById("usertext").value = "";
+    } else if (command === "investigate the lightsource" || command === "2" || command === "2.") {
+      previousState = document.getElementById("textarea").innerHTML;
+      document.getElementById("textarea").innerHTML = "<p>You walk closer to the source of the light and the barred door, a guard stands outside of it and to the right, he sees you and smirks, then says. \"Ah... Finally awake I see, was worried you were never gonna wake up.\"</p>";
+      document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+      document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+      document.getElementById("usertext").value = "";
+    } else if (command === "continue looking" || command === "2" || command === "2.") {
+      previousState = document.getElementById("textarea").innerHTML;
+      if (inventory.includes("lockpick")) {
+        document.getElementById("textarea").innerHTML = "<p>You've found all you can here, only a mess of straw remains that used to be a makeshift bed.</p>";
+      } else if (playerAttributes.intelligence >= 6) {
+        document.getElementById("textarea").innerHTML = "<p>You continue to look around, all you see is the torch light shimmering and your dimly lit straw bed... Wait a minute... The flickering of the torch causes something to shine underneath the straw bed. You move some straw around... A lockpick!</p>";
+        inventory.push("lockpick");
+        document.getElementById("textarea").innerHTML += "<p>Lockpick added to inventory</p>";
+      } else {
+        document.getElementById("textarea").innerHTML = "<p>You continue to look around, but your mind is too clouded to notice anything unusual. Perhaps if you were more observant...</p>";
+      }
+      document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+      document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+      document.getElementById("usertext").value = "";
+    } else if (command === "check inventory" || command === "inventory") {
+      previousState = document.getElementById("textarea").innerHTML;
+      if (inventory.length === 0) {
+        document.getElementById("textarea").innerHTML = "<p>Your inventory is empty.</p>";
+      } else {
+        document.getElementById("textarea").innerHTML = "<p>Your inventory contains: " + inventory.join(", ") + "</p>";
+      }
+      document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+      document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+      document.getElementById("usertext").value = "";
+    } else if (command === "go back") {
+      if (previousState) {
+        document.getElementById("textarea").innerHTML = previousState;
+        // Check if we're going back to the initial state
+        if (previousState.includes("You wake up in a dimly lit room")) {
+          document.getElementById("buttonarea").innerHTML = '<button class="btn btn-primary" onclick="showDirections()">Continue</button>';
+        } else {
+          document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+          document.getElementById("usertext").value = "";
+        }
+      } else {
+        alert("There's nothing to go back to!");
+      }
+    } else {
+      document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+      document.getElementById("usertext").value = "";
+      alert("that is not a valid command please try again");
+    }
+  }
+}
+
 function startGame() {
   // Hide character creation
   document.getElementById("characterCreation").style.display = "none";
   document.getElementById("textarea").style.display = "block";
+  document.getElementById("buttonarea").style.display = "block";
   
   // Display initial room
   currentRoom = Kitchen;
   displayRoomInfo(currentRoom);
   
-  // Add character attributes to the display
-  document.getElementById("textarea").innerHTML += 
-    `<br><br>Your character attributes:<br>
-    Intelligence: ${playerAttributes.intelligence}<br>
-    Strength: ${playerAttributes.strength}<br>
-    Agility: ${playerAttributes.agility}<br>
-    Charisma: ${playerAttributes.charisma}`;
-
-  // Handle commands
-  document.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") {
-      command = document.getElementById("usertext").value;
-      const directions = ["north", "south", "east", "west"];
-      if (directions.includes(command.toLowerCase())) {
-        currentRoom = currentRoom.move(command);
-        displayRoomInfo(currentRoom);
-      } else {
-        document.getElementById("usertext").value = "";
-        alert("that is not a valid command please try again");
-      }
-    }
-  });
+  // Add continue button
+  document.getElementById("buttonarea").innerHTML = '<button class="btn btn-primary" onclick="showDirections()">Continue</button>';
+  
+  // Remove any existing event listeners
+  document.removeEventListener("keydown", handleCommand);
+  
+  // Add new event listener
+  document.addEventListener("keydown", handleCommand);
 }
