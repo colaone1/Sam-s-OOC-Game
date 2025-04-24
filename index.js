@@ -209,12 +209,98 @@ class Character {
   }
 }
 
+class GameState {
+  constructor() {
+    this._playerHealth = 100;
+    this._inventory = [];
+    this._collectedItems = [];
+    this._defeatedEnemies = [];
+    this._gameOver = false;
+    this._gameWon = false;
+  }
+
+  get playerHealth() {
+    return this._playerHealth;
+  }
+
+  get inventory() {
+    return this._inventory;
+  }
+
+  get collectedItems() {
+    return this._collectedItems;
+  }
+
+  get defeatedEnemies() {
+    return this._defeatedEnemies;
+  }
+
+  get gameOver() {
+    return this._gameOver;
+  }
+
+  get gameWon() {
+    return this._gameWon;
+  }
+
+  addToInventory(item) {
+    if (!this._inventory.includes(item)) {
+      this._inventory.push(item);
+    }
+  }
+
+  removeFromInventory(item) {
+    const index = this._inventory.indexOf(item);
+    if (index > -1) {
+      this._inventory.splice(index, 1);
+    }
+  }
+
+  addCollectedItem(item) {
+    if (!this._collectedItems.includes(item)) {
+      this._collectedItems.push(item);
+    }
+  }
+
+  addDefeatedEnemy(enemy) {
+    if (!this._defeatedEnemies.includes(enemy)) {
+      this._defeatedEnemies.push(enemy);
+    }
+  }
+
+  takeDamage(amount) {
+    this._playerHealth -= amount;
+    if (this._playerHealth <= 0) {
+      this._gameOver = true;
+    }
+  }
+
+  heal(amount) {
+    this._playerHealth = Math.min(100, this._playerHealth + amount);
+  }
+
+  checkWinCondition() {
+    // Win if player has collected all required items and defeated all enemies
+    const requiredItems = ['lockpick', 'key', 'weapon'];
+    const requiredEnemies = ['guard', 'boss'];
+    
+    const hasAllItems = requiredItems.every(item => this._collectedItems.includes(item));
+    const hasDefeatedAllEnemies = requiredEnemies.every(enemy => this._defeatedEnemies.includes(enemy));
+    
+    if (hasAllItems && hasDefeatedAllEnemies) {
+      this._gameWon = true;
+    }
+  }
+}
+
 class Enemy extends Character {
   constructor(name) {
     super(name);
     this._weakness = "";
     this._diceChallenge = false;
     this._diceThreshold = 0;
+    this._health = 100;
+    this._attackPower = 10;
   }
 
   set weakness(value) {
@@ -231,6 +317,22 @@ class Enemy extends Character {
 
   set diceThreshold(value) {
     this._diceThreshold = value;
+  }
+
+  set health(value) {
+    this._health = value;
+  }
+
+  set attackPower(value) {
+    this._attackPower = value;
+  }
+
+  get health() {
+    return this._health;
+  }
+
+  get attackPower() {
+    return this._attackPower;
   }
 
   /**
@@ -254,228 +356,117 @@ class Enemy extends Character {
     }
     return item === this._weakness;
   }
-}
 
-//create the indiviual room objects and add their descriptions
-const Kitchen = new Room("kitchen");
-Kitchen.description = "You wake up in a dimly lit room, head throbbing with a painful bump on your head, stone slabs cover the floor and grey bricks for walls, all degrading as if they've been there for a hundred years or more. The light is coming from outside the room, just past a barred door, the only way in or out of it... Is this a dungeon?";
-const Lounge = new Room("lounge");
-Lounge.description = "a large room with two sofas and a large fire place";
-const GamesRoom = new Room("Games Room");
-GamesRoom.description = "a large room with a pool table at it's centre";
-const Hall = new Room("hall");
-Hall.description = "a grand entrance hall with large paintings around the walls";
-
-//link the rooms together
-// Kitchen.linkRoom("south", Lounge);  // Removing this connection
-// Kitchen.linkRoom("east", Hall);     // Removing this connection
-Lounge.linkRoom("north", Kitchen);
-Lounge.linkRoom("east", GamesRoom);
-GamesRoom.linkRoom("west", Lounge);
-GamesRoom.linkRoom("north", Hall);
-Hall.linkRoom("south", GamesRoom);
-Hall.linkRoom("west", Kitchen);
-
-//add characters
-const Dave = new Enemy("Dave");
-Dave.conversation = "grrr brains";
-Dave.description = "a smelly Zombie";
-Dave.pronoun = "he";
-Dave.weakness = "cheese";
-
-// Create enemies
-const dragon = new Enemy('dragon');
-dragon.description = "a fearsome dragon with glowing red eyes";
-dragon.conversation = "ROAR! I will eat you!";
-dragon.weakness = "sword";
-dragon.diceChallenge = true;  // This enemy requires a dice roll
-dragon.diceThreshold = 4;     // Must roll 4 or higher to win
-
-// add characters to rooms
-// Kitchen.character = Dave;  // Removing this line to remove Dave from the Kitchen
-
-// Add player attributes
-let playerAttributes = {
-  intelligence: 5,
-  strength: 5,
-  agility: 5,
-  charisma: 5
-};
-
-let totalPoints = 10;
-let baseValue = 5;
-
-// Add inventory array at the top with other variables
-let inventory = [];
-
-// Add at the top with other variables
-let stateHistory = [];
-
-// Add at the top with other variables
-let whyAmIHereAsked = false;
-
-// Add at the top with other variables
-let hasTalkedToGuard = false;
-
-function updateRemainingPoints() {
-  const totalUsed = Object.values(playerAttributes).reduce((sum, value) => sum + (value - baseValue), 0);
-  const remaining = totalPoints - totalUsed;
-  document.getElementById("remainingPoints").textContent = remaining;
-  
-  // Remove the disabled state and title changes
-  const beginButton = document.getElementById("beginButton");
-  beginButton.disabled = false;
-  beginButton.title = "Click to begin your adventure!";
-}
-
-function showCharacterCreation() {
-  document.getElementById("buttonarea").style.display = "none";
-  document.getElementById("textarea").style.display = "none";
-  document.getElementById("characterCreation").style.display = "block";
-  
-  // Reset attributes to base value
-  playerAttributes = {
-    intelligence: baseValue,
-    strength: baseValue,
-    agility: baseValue,
-    charisma: baseValue
-  };
-  
-  // Reset sliders to base value
-  document.getElementById("intelligence").value = baseValue;
-  document.getElementById("strength").value = baseValue;
-  document.getElementById("agility").value = baseValue;
-  document.getElementById("charisma").value = baseValue;
-  
-  // Update displayed values
-  document.getElementById("intelligenceValue").textContent = baseValue;
-  document.getElementById("strengthValue").textContent = baseValue;
-  document.getElementById("agilityValue").textContent = baseValue;
-  document.getElementById("charismaValue").textContent = baseValue;
-  
-  // Add event listeners for sliders
-  document.getElementById("intelligence").addEventListener("input", function() {
-    const newValue = parseInt(this.value);
-    const oldValue = playerAttributes.intelligence;
-    const pointChange = newValue - oldValue;
-    
-    if (pointChange > 0 && (totalPoints - getTotalPointsUsed() + (oldValue - baseValue)) < pointChange) {
-      this.value = oldValue;
-      return;
-    }
-    
-    playerAttributes.intelligence = newValue;
-    document.getElementById("intelligenceValue").textContent = newValue;
-    updateRemainingPoints();
-  });
-  
-  document.getElementById("strength").addEventListener("input", function() {
-    const newValue = parseInt(this.value);
-    const oldValue = playerAttributes.strength;
-    const pointChange = newValue - oldValue;
-    
-    if (pointChange > 0 && (totalPoints - getTotalPointsUsed() + (oldValue - baseValue)) < pointChange) {
-      this.value = oldValue;
-      return;
-    }
-    
-    playerAttributes.strength = newValue;
-    document.getElementById("strengthValue").textContent = newValue;
-    updateRemainingPoints();
-  });
-  
-  document.getElementById("agility").addEventListener("input", function() {
-    const newValue = parseInt(this.value);
-    const oldValue = playerAttributes.agility;
-    const pointChange = newValue - oldValue;
-    
-    if (pointChange > 0 && (totalPoints - getTotalPointsUsed() + (oldValue - baseValue)) < pointChange) {
-      this.value = oldValue;
-      return;
-    }
-    
-    playerAttributes.agility = newValue;
-    document.getElementById("agilityValue").textContent = newValue;
-    updateRemainingPoints();
-  });
-  
-  document.getElementById("charisma").addEventListener("input", function() {
-    const newValue = parseInt(this.value);
-    const oldValue = playerAttributes.charisma;
-    const pointChange = newValue - oldValue;
-    
-    if (pointChange > 0 && (totalPoints - getTotalPointsUsed() + (oldValue - baseValue)) < pointChange) {
-      this.value = oldValue;
-      return;
-    }
-    
-    playerAttributes.charisma = newValue;
-    document.getElementById("charismaValue").textContent = newValue;
-    updateRemainingPoints();
-  });
-  
-  updateRemainingPoints();
-}
-
-function getTotalPointsUsed() {
-  return Object.values(playerAttributes).reduce((sum, value) => sum + (value - baseValue), 0);
-}
-
-/**
- * Subroutine to display information about the current room
- * 
- * @param {object} room the room to be displayed
- * @author Neil Bizzell
- * @version 1.0 
- */
-function displayRoomInfo(room) {
-  let occupantMsg = ""
-  if (room.character === "") {
-    occupantMsg = ""
-  } else {
-    occupantMsg = room.character.describe() + ". " + room.character.converse()
+  takeDamage(amount) {
+    this._health -= amount;
+    return this._health <= 0;
   }
 
-  let textContent = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 0</p>";
-  textContent += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>" + room.describe() + "</p>";
-  textContent += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>" + occupantMsg + "</p>";
-  textContent += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type 'continue' to start your adventure</p>";
-
-  document.getElementById("textarea").innerHTML = textContent;
-  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
-  document.getElementById("usertext").focus();
-}
-
-// Add new function to show directions after clicking continue
-function showDirections() {
-  stateHistory.push(document.getElementById("textarea").innerHTML);
-  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 1</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>1. Look around</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>2. Investigate the lightsource</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type '1' to look around, '2' to investigate the lightsource, or 'inventory' to check your items</p>";
-  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
-  document.getElementById("usertext").focus();
-}
-
-function showInventory() {
-  stateHistory.push(document.getElementById("textarea").innerHTML);
-  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Inventory</p>";
-  if (inventory.length === 0) {
-    document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Your inventory is empty.</p>";
-  } else {
-    document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Your inventory contains: " + inventory.join(", ") + "</p>";
+  attack(player) {
+    const damage = Math.floor(Math.random() * this._attackPower) + 1;
+    player.takeDamage(damage);
+    return damage;
   }
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type 'go back' or '0' to return</p>";
-  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
-  document.getElementById("usertext").value = "";
-  document.getElementById("usertext").focus();
 }
 
-// Create a separate function to handle commands
+// Space Station Game
+class SpaceStationGame {
+  constructor() {
+    this._currentRoom = null;
+    this._rooms = {};
+    this._gameState = new GameState();
+    this.initializeRooms();
+  }
+
+  initializeRooms() {
+    // Create rooms
+    const bridge = new Room("Bridge");
+    bridge.description = "The main control room of the space station. Various control panels and monitors line the walls.";
+    
+    const engineering = new Room("Engineering");
+    engineering.description = "The heart of the station's power systems. Warning lights flash intermittently.";
+    
+    const quarters = new Room("Crew Quarters");
+    quarters.description = "Living space for the station's crew. Personal belongings are scattered about.";
+    
+    const airlock = new Room("Airlock");
+    airlock.description = "The station's main entrance and exit point. A large window shows the vastness of space.";
+    
+    // Link rooms
+    bridge.linkRoom("south", engineering);
+    bridge.linkRoom("east", quarters);
+    bridge.linkRoom("west", airlock);
+    
+    engineering.linkRoom("north", bridge);
+    quarters.linkRoom("west", bridge);
+    airlock.linkRoom("east", bridge);
+    
+    // Add characters
+    const engineer = new Character("Engineer");
+    engineer.description = "a stressed-looking crew member in a jumpsuit";
+    engineer.conversation = "The reactor is unstable! We need to fix it before it's too late!";
+    engineering.character = engineer;
+    
+    const captain = new Enemy("Captain");
+    captain.description = "the station's commanding officer, now corrupted by an alien influence";
+    captain.conversation = "You will not stop our plans for universal domination!";
+    captain.health = 100;
+    captain.attackPower = 15;
+    captain.weakness = "plasma_rifle";
+    bridge.character = captain;
+    
+    this._rooms = {
+      bridge,
+      engineering,
+      quarters,
+      airlock
+    };
+    
+    this._currentRoom = bridge;
+  }
+
+  startGame() {
+    displayRoomInfo(this._currentRoom);
+  }
+
+  move(direction) {
+    const newRoom = this._currentRoom.move(direction);
+    if (newRoom !== this._currentRoom) {
+      this._currentRoom = newRoom;
+      displayRoomInfo(this._currentRoom);
+    }
+  }
+}
+
+// Add at the top with other variables
+let currentGame = null;
+
+function startSpaceStationGame() {
+  currentGame = new SpaceStationGame();
+  currentGame.startGame();
+}
+
+function restartGame() {
+  if (currentGame instanceof SpaceStationGame) {
+    startSpaceStationGame();
+  } else {
+    startGame();
+  }
+}
+
+// Update handleCommand to include space station game commands
 function handleCommand(event) {
   if (event.key === "Enter") {
     const command = document.getElementById("usertext").value.toLowerCase().trim();
     const currentText = document.getElementById("textarea").innerHTML;
+    
+    // Handle space station game movement
+    if (currentGame instanceof SpaceStationGame) {
+      if (command === "north" || command === "south" || command === "east" || command === "west") {
+        currentGame.move(command);
+        return;
+      }
+    }
     
     // Handle continue command from initial room
     if (currentText.includes("Page 0") && command === "continue") {
@@ -595,6 +586,25 @@ function handleCommand(event) {
         return;
       } else if (command === "go back" || command === "0") {
         handleGoBack();
+        return;
+      }
+    }
+    
+    // Handle combat commands
+    if (currentText.includes("Combat")) {
+      if (command === "1" || command === "1." || command === "attack") {
+        handleAttack(currentEnemy);
+        return;
+      } else if (command === "2" || command === "2." || command === "use item") {
+        // Handle item usage
+        return;
+      }
+    }
+    
+    // Handle game over/win screen
+    if (currentText.includes("Game Over") || currentText.includes("Victory!")) {
+      if (command === "1" || command === "1.") {
+        restartGame();
         return;
       }
     }
@@ -843,3 +853,75 @@ function restoreState() {
     alert("There's nothing to go back to!");
   }
 }
+
+function handleCombat(enemy) {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Combat</p>";
+  document.getElementById("textarea").innerHTML += `<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Your health: ${gameState.playerHealth}</p>`;
+  document.getElementById("textarea").innerHTML += `<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>${enemy.name}'s health: ${enemy.health}</p>`;
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>1. Attack</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>2. Use Item</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type '1' to attack, '2' to use an item, or 'inventory' to check your items</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").focus();
+}
+
+function handleAttack(enemy) {
+  const damage = Math.floor(Math.random() * 15) + 5; // Player deals 5-20 damage
+  const enemyDefeated = enemy.takeDamage(damage);
+  
+  if (enemyDefeated) {
+    gameState.addDefeatedEnemy(enemy.name.toLowerCase());
+    gameState.checkWinCondition();
+    if (gameState.gameWon) {
+      showWinScreen();
+    } else {
+      showVictoryMessage(enemy);
+    }
+  } else {
+    const enemyDamage = enemy.attack(gameState);
+    document.getElementById("textarea").innerHTML += `<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>You deal ${damage} damage!</p>`;
+    document.getElementById("textarea").innerHTML += `<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>${enemy.name} deals ${enemyDamage} damage!</p>`;
+    
+    if (gameState.gameOver) {
+      showGameOverScreen();
+    } else {
+      handleCombat(enemy);
+    }
+  }
+}
+
+function showVictoryMessage(enemy) {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Victory!</p>";
+  document.getElementById("textarea").innerHTML += `<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>You have defeated ${enemy.name}!</p>`;
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type '1' to continue</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").focus();
+}
+
+function showGameOverScreen() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Game Over</p>";
+  document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>You have been defeated...</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type '1' to restart</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").focus();
+}
+
+function showWinScreen() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Victory!</p>";
+  document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>You have collected all required items and defeated all enemies!</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type '1' to restart</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").focus();
+}
+
+// Update the guard creation
+const guard = new Enemy("Guard");
+guard.description = "a burly guard with a wooden baton";
+guard.conversation = "Ah... Finally awake I see, was worried you were never gonna wake up.";
+guard.health = 50;
+guard.attackPower = 8;
+guard.weakness = "weapon";
