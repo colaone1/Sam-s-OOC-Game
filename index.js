@@ -436,62 +436,39 @@ function displayRoomInfo(room) {
     occupantMsg = room.character.describe() + ". " + room.character.converse()
   }
 
-  let textContent = "<p>" + room.describe() + "</p>" + "<p>" +
-    occupantMsg + "</p>";
+  let textContent = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 0</p>";
+  textContent += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>" + room.describe() + "</p>";
+  textContent += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>" + occupantMsg + "</p>";
+  textContent += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type 'continue' to start your adventure</p>";
 
   document.getElementById("textarea").innerHTML = textContent;
-  
-  // Add continue button
-  if (room === Kitchen) {  // Only show on the starting room
-    document.getElementById("buttonarea").innerHTML = '<button class="btn btn-primary" onclick="showDirections()">Continue</button>';
-  } else {
-    document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
-    document.getElementById("usertext").focus();
-  }
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").focus();
 }
 
 // Add new function to show directions after clicking continue
 function showDirections() {
   stateHistory.push(document.getElementById("textarea").innerHTML);
-  document.getElementById("textarea").innerHTML = "<p style='text-align: center;'>1. Look around</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>2. Investigate the lightsource</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose, or click the buttons)</p>";
-  document.getElementById("buttonarea").innerHTML = `
-    <div style="display: flex; gap: 20px;">
-      <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
-        <button class="btn btn-primary" onclick="handleLookAround()">1. Look around</button>
-        <button class="btn btn-primary" onclick="handleInvestigateLightsource()">2. Investigate the lightsource</button>
-      </div>
-      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-    </div>
-    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 1</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>1. Look around</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>2. Investigate the lightsource</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type '1' to look around, '2' to investigate the lightsource, or 'inventory' to check your items</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
   document.getElementById("usertext").focus();
-  
-  // Remove any existing event listeners
-  document.removeEventListener("keydown", handleCommand);
-  
-  // Add new event listener
-  document.addEventListener("keydown", handleCommand);
 }
 
 function showInventory() {
-  saveState();
-  
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Inventory</p>";
   if (inventory.length === 0) {
-    document.getElementById("textarea").innerHTML = "<p>Your inventory is empty.</p>";
+    document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Your inventory is empty.</p>";
   } else {
-    document.getElementById("textarea").innerHTML = "<p>Your inventory contains: " + inventory.join(", ") + "</p>";
+    document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Your inventory contains: " + inventory.join(", ") + "</p>";
   }
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
-  document.getElementById("buttonarea").innerHTML = `
-    <div style="display: flex; gap: 20px;">
-      <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
-        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
-      </div>
-      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-    </div>
-    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type 'go back' or '0' to return</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
   document.getElementById("usertext").value = "";
+  document.getElementById("usertext").focus();
 }
 
 // Create a separate function to handle commands
@@ -500,9 +477,24 @@ function handleCommand(event) {
     const command = document.getElementById("usertext").value.toLowerCase().trim();
     const currentText = document.getElementById("textarea").innerHTML;
     
+    // Handle continue command from initial room
+    if (currentText.includes("Page 0") && command === "continue") {
+      showDirections();
+      return;
+    }
+    
     // Check if we're in the name input state
     if (currentText.includes("Well? What is it then?")) {
-      return; // Let the name input handler handle this
+      handleNameInput();
+      return;
+    }
+    
+    // Handle guard's response to name
+    if (currentText.includes("Not the name I would've guessed")) {
+      if (command === "1" || command === "1.") {
+        handleGuardLeaves();
+        return;
+      }
     }
     
     // Handle inventory check first, as it should work in all states
@@ -513,7 +505,7 @@ function handleCommand(event) {
       } else {
         document.getElementById("textarea").innerHTML = "<p>Your inventory contains: " + inventory.join(", ") + "</p>";
       }
-      document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
+      document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.9em;'>(Type 'go back' or '0' to return)</p>";
       document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
       document.getElementById("usertext").value = "";
       return;
@@ -527,17 +519,9 @@ function handleCommand(event) {
       } else if (command === "2" || command === "2." || command === "investigate the lightsource" || command === "investigate lightsource") {
         handleInvestigateLightsource();
         return;
-      } else if (command === "go back") {
+      } else if (command === "go back" || command === "0") {
         alert("There's nothing back there for you.");
-        document.getElementById("buttonarea").innerHTML = `
-          <div style="display: flex; gap: 20px;">
-            <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
-              <button class="btn btn-primary" onclick="handleLookAround()">1. Look around</button>
-              <button class="btn btn-primary" onclick="handleInvestigateLightsource()">2. Investigate the lightsource</button>
-            </div>
-            <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-          </div>
-          <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
+        document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
         document.getElementById("usertext").value = "";
         return;
       }
@@ -551,17 +535,9 @@ function handleCommand(event) {
       } else if (command === "2" || command === "2." || command === "continue looking") {
         handleContinueLooking();
         return;
-      } else if (command === "go back") {
+      } else if (command === "go back" || command === "0") {
         alert("There's nothing back there for you.");
-        document.getElementById("buttonarea").innerHTML = `
-          <div style="display: flex; gap: 20px;">
-            <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
-              <button class="btn btn-primary" onclick="handleInvestigateLightsource()">1. Investigate the lightsource</button>
-              <button class="btn btn-primary" onclick="handleContinueLooking()">2. Continue looking</button>
-            </div>
-            <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-          </div>
-          <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
+        document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
         document.getElementById("usertext").value = "";
         return;
       }
@@ -581,14 +557,50 @@ function handleCommand(event) {
       } else if (command === "4" || command === "4." || command === "let me out you bastard" || command === "let me out you bastard i'll kill you") {
         handleLetMeOut();
         return;
-      } else if (command === "go back") {
+      } else if (command === "go back" || command === "0") {
+        handleGoBack();
+        return;
+      }
+    }
+    
+    // Handle challenge guard option
+    if (currentText.includes("Come on then, let's find out who'll be seeing their last!")) {
+      if (command === "1" || command === "1." || command === "challenge guard" || command === "challenge") {
+        handleChallengeGuard();
+        return;
+      } else if (command === "go back" || command === "0") {
+        handleGoBack();
+        return;
+      }
+    }
+    
+    // Handle charisma challenge option
+    if (currentText.includes("Oh I see, afraid of me are you?!")) {
+      if (command === "1" || command === "1." || command === "taunt guard" || command === "taunt") {
+        handleCharismaChallenge();
+        return;
+      } else if (command === "go back" || command === "0") {
+        handleGoBack();
+        return;
+      }
+    }
+    
+    // Handle who am I options
+    if (currentText.includes("They must've hit you on the head hard before dragging your sorry self down here... You really don't know?")) {
+      if (command === "1" || command === "1." || command === "of course i do" || command === "remember name") {
+        handleRememberName();
+        return;
+      } else if (command === "2" || command === "2." || command === "i have no idea" || command === "no memory") {
+        handleNoMemory();
+        return;
+      } else if (command === "go back" || command === "0") {
         handleGoBack();
         return;
       }
     }
     
     // Handle go back command for other states
-    if (command === "go back") {
+    if (command === "go back" || command === "0") {
       handleGoBack();
       return;
     }
@@ -599,267 +611,173 @@ function handleCommand(event) {
   }
 }
 
-function handleLookAround() {
-  saveState();
-  document.getElementById("textarea").innerHTML = "<p>You look around the room, nothing but cold, hard stone and the barred door where the light is coming from</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-decoration: underline; text-align: center;'>Do you?</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>1. Investigate the lightsource</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>2. Continue looking (6+ intelligence required)</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose, or click the buttons)</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'inventory' to check your items)</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
-  document.getElementById("buttonarea").innerHTML = `
-    <div style="display: flex; gap: 20px;">
-      <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
-        <button class="btn btn-primary" onclick="handleInvestigateLightsource()">1. Investigate the lightsource</button>
-        <button class="btn btn-primary" onclick="handleContinueLooking()">2. Continue looking</button>
-      </div>
-      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-    </div>
-    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
-  document.getElementById("usertext").value = "";
-}
-
-function handleInvestigateLightsource() {
-  saveState();
-  let guardText = "";
-  if (hasTalkedToGuard) {
-    guardText = "<p>The guard glares at you. \"Bored already are we?\"</p>";
-  } else {
-    guardText = "<p>You walk closer to the source of the light and the barred door, a guard stands outside of it and to the right, holding a torch that casts flickering shadows across the walls. He sees you and smirks, then says. \"Ah... Finally awake I see, was worried you were never gonna wake up.\"</p>";
-    hasTalkedToGuard = true;
-  }
-  
-  document.getElementById("textarea").innerHTML = guardText;
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>1. Why am I here?</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>2. Who are you?</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>3. Who am I?</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>4. Let me out you bastard, I'll kill you!</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose, or click the buttons)</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'inventory' to check your items)</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
-  document.getElementById("buttonarea").innerHTML = `
-    <div style="display: flex; gap: 20px;">
-      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-        <button class="btn btn-primary" onclick="handleWhyAmIHere()">1. Why am I here?</button>
-        <button class="btn btn-primary" onclick="handleWhoAreYou()">2. Who are you?</button>
-        <button class="btn btn-primary" onclick="handleWhoAmI()">3. Who am I?</button>
-        <button class="btn btn-primary" onclick="handleLetMeOut()">4. Let me out you bastard, I'll kill you!</button>
-        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
-      </div>
-      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-    </div>
-    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
-  document.getElementById("usertext").value = "";
-}
-
-function handleContinueLooking() {
-  saveState();
-  if (inventory.includes("lockpick")) {
-    document.getElementById("textarea").innerHTML = "<p>You've found all you can here, only a mess of straw remains that used to be a makeshift bed.</p>";
-  } else if (playerAttributes.intelligence >= 6) {
-    document.getElementById("textarea").innerHTML = "<p>You continue to look around, all you see is the torch light shimmering and your dimly lit straw bed... Wait a minute... The flickering of the torch causes something to shine underneath the straw bed. You move some straw around... A lockpick!</p>";
-    inventory.push("lockpick");
-    document.getElementById("textarea").innerHTML += "<p>Lockpick added to inventory</p>";
-  } else {
-    document.getElementById("textarea").innerHTML = "<p>You continue to look around, but your mind is too clouded to notice anything unusual. Perhaps if you were more observant...</p>";
-  }
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
-  document.getElementById("buttonarea").innerHTML = `
-    <div style="display: flex; gap: 20px;">
-      <div style="flex: 1;">
-        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
-      </div>
-      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-    </div>
-    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
-  document.getElementById("usertext").value = "";
-}
-
-function handleWhyAmIHere() {
-  saveState();
-  let responseText = "";
-  if (whyAmIHereAsked) {
-    responseText = "<p>\"Are you deaf or dumb? I just told you what I know!\"</p>";
-  } else {
-    responseText = "<p>\"Bad luck I suppose!\" The guard blutters with a chuckle. \"I just get paid to stand guard, not ask questions that don't concern me.\"</p>";
-    whyAmIHereAsked = true;
-  }
-  
-  responseText += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
-  
-  // Save the current state before updating
-  const currentState = document.getElementById("textarea").innerHTML;
-  
-  // Update the display
-  document.getElementById("textarea").innerHTML = responseText;
-  document.getElementById("buttonarea").innerHTML = `
-    <div style="display: flex; gap: 20px;">
-      <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
-        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
-      </div>
-      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-    </div>
-    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
-  document.getElementById("usertext").value = "";
-  
-  // Add the previous state to history
-  stateHistory.push(currentState);
-}
-
-function handleWhoAreYou() {
-  saveState();
-  document.getElementById("textarea").innerHTML = "<p>\"Isn't it obvious?\" His smirk thinning. \"I'm your jailor, and if you misbehave, the last person you'll see!\" He says as he cackles to himself, showing off the wooden baton on his belt.</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>1. Come on then, let's find out who'll be seeing their last!</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose, or click the buttons)</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
-  document.getElementById("buttonarea").innerHTML = `
-    <div style="display: flex; gap: 20px;">
-      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-        <button class="btn btn-primary" onclick="handleChallengeGuard()">1. Come on then, let's find out who'll be seeing their last!</button>
-        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
-      </div>
-      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-    </div>
-    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
-  document.getElementById("usertext").value = "";
-}
-
-function handleChallengeGuard() {
-  saveState();
-  document.getElementById("textarea").innerHTML = "<p>The guard's smirk fades as he grips his baton tightly. \"You've got spirit, I'll give you that. But you're in no condition to fight, not with that bump on your head. Maybe when you're feeling better... if you live that long.\"</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>1. Oh I see, afraid of me are you?! (6+ charisma required)</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose, or click the buttons)</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
-  document.getElementById("buttonarea").innerHTML = `
-    <div style="display: flex; gap: 20px;">
-      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-        <button class="btn btn-primary" onclick="handleCharismaChallenge()">1. Oh I see, afraid of me are you?! (6+ charisma required)</button>
-        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
-      </div>
-      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-    </div>
-    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
-  document.getElementById("usertext").value = "";
-}
-
-function handleCharismaChallenge() {
-  saveState();
-  if (playerAttributes.charisma >= 6) {
-    document.getElementById("textarea").innerHTML = "<p>\"A-afraid?! I'll show you something to be afraid of!\" He bellows before drawing his wooden baton, opening the door to the prison cell. He then, with a grimace on his face raises his baton and brings it down with force.</p>";
-  } else {
-    document.getElementById("textarea").innerHTML = "<p>The guard chuckles then says \"My you're a tough one ain't ya.\"</p>";
-  }
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
-  document.getElementById("buttonarea").innerHTML = `
-    <div style="display: flex; gap: 20px;">
-      <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
-        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
-      </div>
-      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-    </div>
-    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
-  document.getElementById("usertext").value = "";
-}
-
-function handleWhoAmI() {
-  saveState();
-  document.getElementById("textarea").innerHTML = "<p>The guard pauses for a brief moment, looking you in the eyes then says. \"They must've hit you on the head hard before dragging your sorry self down here... You really don't know?\"</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>1. Of course I do, it's...</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center;'>2. I... I have no idea</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type the number of the option you wish to choose, or click the buttons)</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
-  document.getElementById("buttonarea").innerHTML = `
-    <div style="display: flex; gap: 20px;">
-      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-        <button class="btn btn-primary" onclick="handleRememberName()">1. Of course I do, it's...</button>
-        <button class="btn btn-primary" onclick="handleNoMemory()">2. I... I have no idea</button>
-        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
-      </div>
-      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-    </div>
-    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
-  document.getElementById("usertext").value = "";
-}
-
-function handleRememberName() {
-  saveState();
-  document.getElementById("textarea").innerHTML = "<p>\"Well? What is it then?\"</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type your name using only letters, then press Enter or click Confirm)</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
-  document.getElementById("buttonarea").innerHTML = `
-    <div style="display: flex; gap: 20px;">
-      <div style="flex: 1; display: flex; gap: 10px;">
-        <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px; flex: 1;" pattern="[A-Za-z]+" title="Please enter only letters" />
-        <button class="btn btn-primary" onclick="handleNameInput()" style="margin-top: 10px;">Confirm</button>
-      </div>
-      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-    </div>
-    <div style="display: flex; gap: 20px; margin-top: 10px;">
-      <div style="flex: 1;">
-        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
-      </div>
-    </div>`;
-  document.getElementById("usertext").value = "";
-  
-  // Add event listener for name input
-  document.getElementById("usertext").addEventListener("keydown", function(event) {
-    if (event.key === "Enter") {
-      handleNameInput();
-    }
-  });
-}
-
 function handleNameInput() {
-  saveState();
   const playerName = document.getElementById("usertext").value.trim();
   if (playerName) {
     stateHistory.push(document.getElementById("textarea").innerHTML);
-    document.getElementById("textarea").innerHTML = "<p>The guard furrows his eyebrows \"" + playerName + "... Not the name I would've guessed... You look more like... a prisoner.\" The guard heckles.</p>";
-    document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Click Continue to proceed)</p>";
-    document.getElementById("buttonarea").innerHTML = `
-      <div style="display: flex; gap: 20px;">
-        <div style="flex: 1;">
-          <button class="btn btn-primary" onclick="handleContinue()">Continue</button>
-        </div>
-        <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-      </div>`;
+    document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 11</p>";
+    document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>The guard furrows his eyebrows \"" + playerName + "... Not the name I would've guessed... You look more like... a prisoner.\" The guard heckles.</p>";
+    document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type '1' to continue</p>";
+    document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+    document.getElementById("usertext").focus();
   }
 }
 
-function handleContinue() {
-  saveState();
-  handleGoBack();
+function handleGuardLeaves() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 14</p>";
+  document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Some fighting can be heard further in the dungeon, the guard curses, then says. \"Don't go anywhere.\" Before walking off in the direction of the noise.</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type '1' to continue</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").focus();
+}
+
+function handleLookAround() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 2</p>";
+  document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>You look around the room, nothing but cold, hard stone and the barred door where the light is coming from</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-decoration: underline; text-align: center; font-size: 1.3em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Do you?</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>1. Investigate the lightsource</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>2. Continue looking (6+ intelligence required)</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type '1' to investigate the lightsource, '2' to continue looking, 'inventory' to check your items, or 'go back' to return</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").value = "";
+  document.getElementById("usertext").focus();
+}
+
+function handleInvestigateLightsource() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 3</p>";
+  let guardText = "";
+  if (hasTalkedToGuard) {
+    guardText = "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>The guard glares at you. \"Bored already are we?\"</p>";
+  } else {
+    guardText = "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>You walk closer to the source of the light and the barred door, a guard stands outside of it and to the right, holding a torch that casts flickering shadows across the walls. He sees you and smirks, then says. \"Ah... Finally awake I see, was worried you were never gonna wake up.\"</p>";
+    hasTalkedToGuard = true;
+  }
+  document.getElementById("textarea").innerHTML += guardText;
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>1. Why am I here?</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>2. Who are you?</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>3. Who am I?</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>4. Let me out you bastard, I'll kill you!</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type '1' to ask why you're here, '2' to ask who the guard is, '3' to ask who you are, '4' to threaten the guard, 'inventory' to check your items, or 'go back' to return</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").value = "";
+  document.getElementById("usertext").focus();
+}
+
+function handleContinueLooking() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 4</p>";
+  if (inventory.includes("lockpick")) {
+    document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>You've found all you can here, only a mess of straw remains that used to be a makeshift bed.</p>";
+  } else if (playerAttributes.intelligence >= 6) {
+    document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>You continue to look around, all you see is the torch light shimmering and your dimly lit straw bed... Wait a minute... The flickering of the torch causes something to shine underneath the straw bed. You move some straw around... A lockpick!</p>";
+    inventory.push("lockpick");
+    document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Lockpick added to inventory</p>";
+  } else {
+    document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>You continue to look around, but your mind is too clouded to notice anything unusual. Perhaps if you were more observant...</p>";
+  }
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type 'go back' or '0' to return</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").value = "";
+  document.getElementById("usertext").focus();
+}
+
+function handleWhyAmIHere() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 5</p>";
+  let responseText = "";
+  if (whyAmIHereAsked) {
+    responseText = "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>\"Are you deaf or dumb? I just told you what I know!\"</p>";
+  } else {
+    responseText = "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>\"Bad luck I suppose!\" The guard blutters with a chuckle. \"I just get paid to stand guard, not ask questions that don't concern me.\"</p>";
+    whyAmIHereAsked = true;
+  }
+  document.getElementById("textarea").innerHTML += responseText;
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type 'go back' or '0' to return</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").value = "";
+  document.getElementById("usertext").focus();
+}
+
+function handleWhoAreYou() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 6</p>";
+  document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>\"Isn't it obvious?\" His smirk thinning. \"I'm your jailor, and if you misbehave, the last person you'll see!\" He says as he cackles to himself, showing off the wooden baton on his belt.</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>1. Come on then, let's find out who'll be seeing their last!</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type '1' to challenge the guard, 'inventory' to check your items, or 'go back' to return</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").value = "";
+  document.getElementById("usertext").focus();
+}
+
+function handleChallengeGuard() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 7</p>";
+  document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>The guard's smirk fades as he grips his baton tightly. \"You've got spirit, I'll give you that. But you're in no condition to fight, not with that bump on your head. Maybe when you're feeling better... if you live that long.\"</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>1. Oh I see, afraid of me are you?! (6+ charisma required)</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type '1' to taunt the guard, 'inventory' to check your items, or 'go back' to return</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").value = "";
+  document.getElementById("usertext").focus();
+}
+
+function handleCharismaChallenge() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 8</p>";
+  if (playerAttributes.charisma >= 6) {
+    document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>\"A-afraid?! I'll show you something to be afraid of!\" He bellows before drawing his wooden baton, opening the door to the prison cell. He then, with a grimace on his face raises his baton and brings it down with force.</p>";
+  } else {
+    document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>The guard chuckles then says \"My you're a tough one ain't ya.\"</p>";
+  }
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type 'go back' or '0' to return</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").value = "";
+  document.getElementById("usertext").focus();
+}
+
+function handleWhoAmI() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 9</p>";
+  document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>The guard pauses for a brief moment, looking you in the eyes then says. \"They must've hit you on the head hard before dragging your sorry self down here... You really don't know?\"</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>1. Of course I do, it's...</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.3em; font-weight: bold; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>2. I... I have no idea</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type '1' to remember your name, '2' to admit you have no memory, 'inventory' to check your items, or 'go back' to return</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").value = "";
+  document.getElementById("usertext").focus();
+}
+
+function handleRememberName() {
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 10</p>";
+  document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>\"Well? What is it then?\"</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type your name using only letters, then press Enter</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00;'>Type 'go back' or '0' to return</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").value = "";
+  document.getElementById("usertext").focus();
 }
 
 function handleNoMemory() {
-  saveState();
-  document.getElementById("textarea").innerHTML = "<p>The guard's smirk grows wider. \"Knocked the sense out of you they did... Oh well, as long as you respond to 'prisoner' we won't have any problems.\"</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
-  document.getElementById("buttonarea").innerHTML = `
-    <div style="display: flex; gap: 20px;">
-      <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
-        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
-      </div>
-      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-    </div>
-    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 12</p>";
+  document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>The guard's smirk grows wider. \"Knocked the sense out of you they did... Oh well, as long as you respond to 'prisoner' we won't have any problems.\"</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type 'go back' or '0' to return</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
   document.getElementById("usertext").value = "";
+  document.getElementById("usertext").focus();
 }
 
 function handleLetMeOut() {
-  saveState();
-  document.getElementById("textarea").innerHTML = "<p>The guard tuts. \"Now now, none of that... We don't want another bump on the head now do we?\"</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
-  document.getElementById("buttonarea").innerHTML = `
-    <div style="display: flex; gap: 20px;">
-      <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
-        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
-      </div>
-      <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-    </div>
-    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
+  stateHistory.push(document.getElementById("textarea").innerHTML);
+  document.getElementById("textarea").innerHTML = "<p style='text-align: center; font-weight: bold; font-size: 1.5em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>Page 13</p>";
+  document.getElementById("textarea").innerHTML += "<p style='font-size: 1.2em; color: #00FF00; text-shadow: 0 0 5px #00FF00;'>The guard tuts. \"Now now, none of that... We don't want another bump on the head now do we?\"</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 1.1em; font-weight: bold; color: #FFFF00; text-shadow: 0 0 5px #FFFF00; margin-top: 20px;'>Type 'go back' or '0' to return</p>";
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
   document.getElementById("usertext").value = "";
+  document.getElementById("usertext").focus();
 }
 
 function handleGoBack() {
@@ -876,8 +794,9 @@ function startGame() {
   currentRoom = Kitchen;
   displayRoomInfo(currentRoom);
   
-  // Add continue button
-  document.getElementById("buttonarea").innerHTML = '<button class="btn btn-primary" onclick="showDirections()">Continue</button>';
+  // Add text input
+  document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" style="font-size: 1.2em; padding: 10px; width: 100%;" />';
+  document.getElementById("usertext").focus();
   
   // Remove any existing event listeners
   document.removeEventListener("keydown", handleCommand);
@@ -903,6 +822,7 @@ function restoreState() {
       document.getElementById("textarea").innerHTML = previousState.text;
       document.getElementById("buttonarea").innerHTML = previousState.buttons;
       document.getElementById("usertext").value = "";
+      document.getElementById("usertext").focus();
       // Re-add the event listener after going back
       document.removeEventListener("keydown", handleCommand);
       document.addEventListener("keydown", handleCommand);
@@ -917,6 +837,7 @@ function restoreState() {
           <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
         </div>
         <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
+      document.getElementById("usertext").focus();
     }
   } else {
     alert("There's nothing to go back to!");
