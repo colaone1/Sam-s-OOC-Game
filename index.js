@@ -496,6 +496,11 @@ function handleCommand(event) {
     const command = document.getElementById("usertext").value.toLowerCase().trim();
     const currentText = document.getElementById("textarea").innerHTML;
     
+    // Check if we're in the name input state
+    if (currentText.includes("Well? What is it then?")) {
+      return; // Let the name input handler handle this
+    }
+    
     // Handle inventory check first, as it should work in all states
     if (command === "check inventory" || command === "inventory") {
       stateHistory.push(currentText);
@@ -520,7 +525,15 @@ function handleCommand(event) {
         return;
       } else if (command === "go back") {
         alert("There's nothing back there for you.");
-        document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+        document.getElementById("buttonarea").innerHTML = `
+          <div style="display: flex; gap: 20px;">
+            <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
+              <button class="btn btn-primary" onclick="handleLookAround()">1. Look around</button>
+              <button class="btn btn-primary" onclick="handleInvestigateLightsource()">2. Investigate the lightsource</button>
+            </div>
+            <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
+          </div>
+          <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
         document.getElementById("usertext").value = "";
         return;
       }
@@ -536,7 +549,15 @@ function handleCommand(event) {
         return;
       } else if (command === "go back") {
         alert("There's nothing back there for you.");
-        document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
+        document.getElementById("buttonarea").innerHTML = `
+          <div style="display: flex; gap: 20px;">
+            <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
+              <button class="btn btn-primary" onclick="handleInvestigateLightsource()">1. Investigate the lightsource</button>
+              <button class="btn btn-primary" onclick="handleContinueLooking()">2. Continue looking</button>
+            </div>
+            <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
+          </div>
+          <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
         document.getElementById("usertext").value = "";
         return;
       }
@@ -556,62 +577,21 @@ function handleCommand(event) {
       } else if (command === "4" || command === "4." || command === "let me out you bastard" || command === "let me out you bastard i'll kill you") {
         handleLetMeOut();
         return;
+      } else if (command === "go back") {
+        handleGoBack();
+        return;
       }
     }
     
     // Handle go back command for other states
     if (command === "go back") {
-      if (stateHistory.length > 0) {
-        const previousState = stateHistory.pop();
-        document.getElementById("textarea").innerHTML = previousState;
-        // Check if we're going back to the guard dialogue options
-        if (previousState.includes("Ah... Finally awake I see")) {
-          document.getElementById("buttonarea").innerHTML = `
-            <div style="display: flex; gap: 20px;">
-              <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                <button class="btn btn-primary" onclick="handleWhyAmIHere()">1. Why am I here?</button>
-                <button class="btn btn-primary" onclick="handleWhoAreYou()">2. Who are you?</button>
-                <button class="btn btn-primary" onclick="handleWhoAmI()">3. Who am I?</button>
-                <button class="btn btn-primary" onclick="handleLetMeOut()">4. Let me out you bastard, I'll kill you!</button>
-              </div>
-              <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-            </div>
-            <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
-        } else if (previousState.includes("1. Look around") && previousState.includes("2. Investigate the lightsource")) {
-          document.getElementById("buttonarea").innerHTML = `
-            <div style="display: flex; gap: 20px;">
-              <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
-                <button class="btn btn-primary" onclick="handleLookAround()">1. Look around</button>
-                <button class="btn btn-primary" onclick="handleInvestigateLightsource()">2. Investigate the lightsource</button>
-              </div>
-              <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-            </div>
-            <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
-        } else {
-          document.getElementById("buttonarea").innerHTML = `
-            <div style="display: flex; gap: 20px;">
-              <div style="flex: 1;">
-                <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
-              </div>
-              <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
-            </div>
-            <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
-        }
-        
-        document.getElementById("usertext").value = "";
-        // Re-add the event listener after going back
-        document.removeEventListener("keydown", handleCommand);
-        document.addEventListener("keydown", handleCommand);
-      } else {
-        alert("There's nothing to go back to!");
-      }
+      handleGoBack();
       return;
     }
     
-    // If no valid command was found
+    // If no valid command was found, just clear the input
     document.getElementById("buttonarea").innerHTML = '<input type="text" id="usertext" autocomplete="off" />';
     document.getElementById("usertext").value = "";
-    alert("that is not a valid command please try again");
   }
 }
 
@@ -788,17 +768,51 @@ function handleWhoAmI() {
 function handleRememberName() {
   stateHistory.push(document.getElementById("textarea").innerHTML);
   document.getElementById("textarea").innerHTML = "<p>\"Well? What is it then?\"</p>";
-  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type your name using only letters, then press Enter)</p>";
+  document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type your name using only letters, then press Enter or click Confirm)</p>";
   document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
   document.getElementById("buttonarea").innerHTML = `
     <div style="display: flex; gap: 20px;">
-      <div style="flex: 1;">
-        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
+      <div style="flex: 1; display: flex; gap: 10px;">
+        <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px; flex: 1;" pattern="[A-Za-z]+" title="Please enter only letters" />
+        <button class="btn btn-primary" onclick="handleNameInput()" style="margin-top: 10px;">Confirm</button>
       </div>
       <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
     </div>
-    <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" pattern="[A-Za-z]+" title="Please enter only letters" />`;
+    <div style="display: flex; gap: 20px; margin-top: 10px;">
+      <div style="flex: 1;">
+        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
+      </div>
+    </div>`;
   document.getElementById("usertext").value = "";
+  
+  // Add event listener for name input
+  document.getElementById("usertext").addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+      handleNameInput();
+    }
+  });
+}
+
+function handleNameInput() {
+  const playerName = document.getElementById("usertext").value.trim();
+  if (playerName) {
+    stateHistory.push(document.getElementById("textarea").innerHTML);
+    document.getElementById("textarea").innerHTML = "<p>The guard furrows his eyebrows \"" + playerName + "... Not the name I would've guessed... You look more like... a prisoner.\" The guard heckles.</p>";
+    document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Click Continue to proceed)</p>";
+    document.getElementById("buttonarea").innerHTML = `
+      <div style="display: flex; gap: 20px;">
+        <div style="flex: 1;">
+          <button class="btn btn-primary" onclick="handleContinue()">Continue</button>
+        </div>
+        <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
+      </div>`;
+  }
+}
+
+function handleContinue() {
+  // Add your continuation logic here
+  // For now, it will just go back to the guard's dialogue options
+  handleGoBack();
 }
 
 function handleNoMemory() {
@@ -856,6 +870,17 @@ function handleGoBack() {
           <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
             <button class="btn btn-primary" onclick="handleLookAround()">1. Look around</button>
             <button class="btn btn-primary" onclick="handleInvestigateLightsource()">2. Investigate the lightsource</button>
+          </div>
+          <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
+        </div>
+        <input type="text" id="usertext" autocomplete="off" style="margin-top: 10px;" />`;
+    } else if (previousState.includes("You look around the room")) {
+      document.getElementById("textarea").innerHTML = previousState;
+      document.getElementById("buttonarea").innerHTML = `
+        <div style="display: flex; gap: 20px;">
+          <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
+            <button class="btn btn-primary" onclick="handleInvestigateLightsource()">1. Investigate the lightsource</button>
+            <button class="btn btn-primary" onclick="handleContinueLooking()">2. Continue looking</button>
           </div>
           <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
         </div>
