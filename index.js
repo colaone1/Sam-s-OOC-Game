@@ -633,6 +633,7 @@ function handleInvestigateLightsource() {
         <button class="btn btn-primary" onclick="handleWhoAreYou()">2. Who are you?</button>
         <button class="btn btn-primary" onclick="handleWhoAmI()">3. Who am I?</button>
         <button class="btn btn-primary" onclick="handleLetMeOut()">4. Let me out you bastard, I'll kill you!</button>
+        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
       </div>
       <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
     </div>
@@ -681,7 +682,7 @@ function handleWhyAmIHere() {
   document.getElementById("textarea").innerHTML = responseText;
   document.getElementById("buttonarea").innerHTML = `
     <div style="display: flex; gap: 20px;">
-      <div style="flex: 1;">
+      <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
         <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
       </div>
       <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
@@ -701,8 +702,9 @@ function handleWhoAreYou() {
   document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
   document.getElementById("buttonarea").innerHTML = `
     <div style="display: flex; gap: 20px;">
-      <div style="flex: 1;">
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px;">
         <button class="btn btn-primary" onclick="handleChallengeGuard()">1. Come on then, let's find out who'll be seeing their last!</button>
+        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
       </div>
       <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
     </div>
@@ -718,8 +720,9 @@ function handleChallengeGuard() {
   document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
   document.getElementById("buttonarea").innerHTML = `
     <div style="display: flex; gap: 20px;">
-      <div style="flex: 1;">
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px;">
         <button class="btn btn-primary" onclick="handleCharismaChallenge()">1. Oh I see, afraid of me are you?! (6+ charisma required)</button>
+        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
       </div>
       <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
     </div>
@@ -737,7 +740,7 @@ function handleCharismaChallenge() {
   document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
   document.getElementById("buttonarea").innerHTML = `
     <div style="display: flex; gap: 20px;">
-      <div style="flex: 1;">
+      <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
         <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
       </div>
       <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
@@ -758,6 +761,7 @@ function handleWhoAmI() {
       <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px;">
         <button class="btn btn-primary" onclick="handleRememberName()">1. Of course I do, it's...</button>
         <button class="btn btn-primary" onclick="handleNoMemory()">2. I... I have no idea</button>
+        <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
       </div>
       <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
     </div>
@@ -821,7 +825,7 @@ function handleNoMemory() {
   document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
   document.getElementById("buttonarea").innerHTML = `
     <div style="display: flex; gap: 20px;">
-      <div style="flex: 1;">
+      <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
         <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
       </div>
       <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
@@ -836,7 +840,7 @@ function handleLetMeOut() {
   document.getElementById("textarea").innerHTML += "<p style='text-align: center; font-size: 0.8em;'>(Type 'go back' to return)</p>";
   document.getElementById("buttonarea").innerHTML = `
     <div style="display: flex; gap: 20px;">
-      <div style="flex: 1;">
+      <div style="flex: 1; display: flex; justify-content: center; gap: 10px;">
         <button class="btn btn-primary" onclick="handleGoBack()">Go Back</button>
       </div>
       <button class="btn btn-secondary" onclick="showInventory()" style="align-self: flex-start;">Inventory</button>
